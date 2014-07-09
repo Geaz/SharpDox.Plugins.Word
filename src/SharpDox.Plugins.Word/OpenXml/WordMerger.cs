@@ -7,6 +7,8 @@ namespace SharpDox.Plugins.Word.OpenXml
 {
     internal static class WordMerger
     {
+        private static int _chunkId = 1;
+
         public static void AppendPageBreak(string sourceFile)
         {
             using (var document = WordprocessingDocument.Open(sourceFile, true))
@@ -19,25 +21,25 @@ namespace SharpDox.Plugins.Word.OpenXml
 
         public static void MergeDocuments(string sourceFile, string destinationFile)
         {
-            // I am not using AltChunks, because then all information from the source document get
-            // copied to the destination document (including style information etc.). This results
-            // in a really big file (filesize wise). To avoid this problem I just copy the body xml and
-            // have already included all needed style information in the destination file.
-            using (var destinationDocument = WordprocessingDocument.Open(sourceFile, true))
+            using (var document = WordprocessingDocument.Open(destinationFile, true))
             {
-                using(var sourceDocument = WordprocessingDocument.Open(destinationFile, true))
+                var altChunkId = string.Format("AltChunkId{0}", _chunkId++);
+                var mainPart = document.MainDocumentPart;
+                AlternativeFormatImportPart chunk = mainPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.WordprocessingML, altChunkId);
+
+                using (FileStream fileStream = File.Open(sourceFile, FileMode.Open))
                 {
-                    // It is necessary to delete the last sectionproperties. Otherwise the resulting document is not valid and Word is not able to open it.
-                    sourceDocument.MainDocumentPart.Document.Body.RemoveChild<SectionProperties>(sourceDocument.MainDocumentPart.Document.Body.Elements<SectionProperties>().LastOrDefault());
-                    destinationDocument.MainDocumentPart.Document.Body.InnerXml = destinationDocument.MainDocumentPart.Document.Body.InnerXml + sourceDocument.MainDocumentPart.Document.Body.InnerXml;
-                    destinationDocument.MainDocumentPart.Document.Save();
+                    chunk.FeedData(fileStream);
                 }
+
+                var altChunk = new AltChunk { Id = altChunkId };
+                mainPart.Document.Body.InsertAfter(altChunk, mainPart.Document.Body.Elements().Last());
             }
         }
 
         public static void MergeDocumentsWithPagebreak(string sourceFile, string destinationFile)
         {
-            AppendPageBreak(sourceFile);
+            AppendPageBreak(destinationFile);
             MergeDocuments(sourceFile, destinationFile);
         }
     }

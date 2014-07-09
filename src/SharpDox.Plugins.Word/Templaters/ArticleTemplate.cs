@@ -20,7 +20,7 @@ namespace SharpDox.Plugins.Word.Templaters
         {
             var data = new List<FieldData>();
             data.Add(new FieldData("Title", _article.Title) { StyleName = string.Format("Heading {0}", _navigationLevel) });
-            data.Add(new FieldData("Content", _article.Content));
+            data.Add(new FieldData("Content", new Markdown().Transform(_article.Content), true));
             _templater.ReplaceBookmarks(data);
         }
     }

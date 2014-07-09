@@ -1,4 +1,7 @@
-﻿using SharpDox.Model;
+﻿using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Validation;
+using SharpDox.Model;
 using SharpDox.Model.Documentation.Article;
 using SharpDox.Model.Repository;
 using SharpDox.Plugins.Word.Templaters;
@@ -43,8 +46,7 @@ namespace SharpDox.Plugins.Word
                 {
                     List<SDArticle> articles;
                     sdProject.Articles.TryGetValue(_currentDocLanguage, out articles);
-                    articles = articles == null ? sdProject.Articles["default"] : articles;
-
+                    articles = articles ?? sdProject.Articles["default"];
                     CreateArticles(articles, false, 1);
                 }
                 else
@@ -60,13 +62,14 @@ namespace SharpDox.Plugins.Word
 
         public bool CheckRequirements() { return true; }
 
-        private void CreateArticles(List<SDArticle> articles, bool nextMergeWithPageBreak, int navigationLevel)
+        private void CreateArticles(IEnumerable<SDArticle> articles, bool nextMergeWithPageBreak, int navigationLevel)
         {
             foreach (var article in articles)
             {
-                if (article is SDDocPlaceholder)
+                var placeholder = article as SDDocPlaceholder;
+                if (placeholder != null)
                 {
-                    CreateApiDoc(_sdProject.Repositories[((SDDocPlaceholder)article).SolutionFile], navigationLevel);
+                    CreateApiDoc(_sdProject.Repositories[placeholder.SolutionFile], navigationLevel);
                     nextMergeWithPageBreak = true;
                 }
                 else if (article is SDArticlePlaceholder)
@@ -76,7 +79,7 @@ namespace SharpDox.Plugins.Word
                     _mainTemplate.MergeWith(placeholderTemplate.TemplatePath, nextMergeWithPageBreak);
                     nextMergeWithPageBreak = false;
                 }
-                else if (article is SDArticle)
+                else
                 {
                     var articleTemplate = new ArticleTemplate(article, _currentOutputPath, navigationLevel);
                     articleTemplate.CreateDocument();

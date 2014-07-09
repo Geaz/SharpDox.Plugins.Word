@@ -76,13 +76,16 @@ namespace SharpDox.Plugins.Word.OpenXml
             using (var document = WordprocessingDocument.Open(_templateFile, true))
             {
                 var tables = document.MainDocumentPart.Document.Descendants<Table>().ToList();
-                var tableCells = new List<TableCell>();
-                foreach(var field in fields)
+                if (tables.Count >= tableIndex + 1)
                 {
-                    tableCells.Add(new TableCell(new Paragraph(new Run(new Text(field)))));
-                }
+                    var tableCells = new List<TableCell>();
+                    foreach (var field in fields)
+                    {
+                        tableCells.Add(new TableCell(new Paragraph(new Run(new Text(field)))));
+                    }
 
-                tables[tableIndex].Append(new TableRow(tableCells));
+                    tables[tableIndex].Append(new TableRow(tableCells));
+                }
             }
         }
 

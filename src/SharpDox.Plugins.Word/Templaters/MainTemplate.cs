@@ -37,11 +37,11 @@ namespace SharpDox.Plugins.Word.Templaters
         {
             if (pageBreak)
             {
-                WordMerger.MergeDocumentsWithPagebreak(TemplatePath, documentPath);
+                WordMerger.MergeDocumentsWithPagebreak(documentPath, TemplatePath);
             }
             else
             {
-                WordMerger.MergeDocuments(TemplatePath, documentPath);
+                WordMerger.MergeDocuments(documentPath, TemplatePath);
             }
         }
 
