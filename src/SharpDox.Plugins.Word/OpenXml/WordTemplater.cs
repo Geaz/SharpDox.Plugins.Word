@@ -36,10 +36,10 @@ namespace SharpDox.Plugins.Word.OpenXml
 
                     if (fieldData.IsMarkDown)
                     {
-                        var converter = new HtmlConverter(document.MainDocumentPart);
-                        var paragraphs = converter.Parse(fieldData.Text);
+                        var converter = new HtmlConverter(document.MainDocumentPart) { RenderPreAsTable = false };
+                        var paragraphs = converter.Parse(fieldData.Text.Replace("<pre>", "<p class=\"codesnippet\"><pre>").Replace("</pre>", "</pre></p>"));
 
-                        var insertPoint = (OpenXmlElement)bookmarks[fieldData.FieldName].Parent;
+                        var insertPoint = bookmarks[fieldData.FieldName].Parent;
                         foreach (var paragraph in paragraphs)
                         {
                             insertPoint.InsertAfterSelf(paragraph);

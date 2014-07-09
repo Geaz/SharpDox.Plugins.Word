@@ -27,7 +27,6 @@ namespace SharpDox.Plugins.Word.Templaters
             data.Add(new FieldData("Title", _sdProject.ProjectName));
             data.Add(new FieldData("Version", _sdProject.VersionNumber));
             data.Add(new FieldData("Author", _sdProject.Author));
-            data.Add(new FieldData("Date", DateTime.Now.ToShortDateString()));
             data.Add(new FieldData("AuthorUrl", _sdProject.AuthorUrl));
             data.Add(new FieldData("ProjectUrl", _sdProject.ProjectUrl));
             data.Add(new FieldData("Disclaimer", "This document was created by sharpDox"));
