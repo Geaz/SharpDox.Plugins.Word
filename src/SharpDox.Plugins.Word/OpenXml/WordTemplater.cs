@@ -92,9 +92,24 @@ namespace SharpDox.Plugins.Word.OpenXml
         private Dictionary<string, BookmarkStart> GetAllBookmarks(WordprocessingDocument document)
         {
             var bookmarkMap = new Dictionary<string, BookmarkStart>();
+            
             foreach (BookmarkStart bookmarkStart in document.MainDocumentPart.RootElement.Descendants<BookmarkStart>())
             {
                 bookmarkMap[bookmarkStart.Name] = bookmarkStart;
+            }
+            foreach (var header in document.MainDocumentPart.HeaderParts)
+            {
+                foreach (BookmarkStart bookmarkStart in header.Header.Descendants<BookmarkStart>())
+                {
+                    bookmarkMap[bookmarkStart.Name] = bookmarkStart;
+                }
+            }
+            foreach (var footer in document.MainDocumentPart.FooterParts)
+            {
+                foreach (BookmarkStart bookmarkStart in footer.Footer.Descendants<BookmarkStart>())
+                {
+                    bookmarkMap[bookmarkStart.Name] = bookmarkStart;
+                }
             }
 
             return bookmarkMap;

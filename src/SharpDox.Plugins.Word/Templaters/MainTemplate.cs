@@ -30,6 +30,8 @@ namespace SharpDox.Plugins.Word.Templaters
             data.Add(new FieldData("Date", DateTime.Now.ToShortDateString()));
             data.Add(new FieldData("AuthorUrl", _sdProject.AuthorUrl));
             data.Add(new FieldData("ProjectUrl", _sdProject.ProjectUrl));
+            data.Add(new FieldData("Disclaimer", "This document was created by sharpDox"));
+            data.Add(new FieldData("Header", string.Format("{0} {1}", _sdProject.ProjectName, _sdProject.VersionNumber)));
             _templater.ReplaceBookmarks(data);
         }
 
