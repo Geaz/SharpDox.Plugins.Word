@@ -69,12 +69,16 @@ namespace SharpDox.Plugins.Word
                 var placeholder = article as SDDocPlaceholder;
                 if (placeholder != null)
                 {
-                    CreateApiDoc(_sdProject.Repositories[placeholder.SolutionFile], navigationLevel);
+                    var placeholderTemplate = new PlaceholderTemplate(article.Title, _currentOutputPath, navigationLevel);
+                    placeholderTemplate.CreateDocument();
+                    _mainTemplate.MergeWith(placeholderTemplate.TemplatePath, nextMergeWithPageBreak);
+
+                    CreateApiDoc(_sdProject.Repositories[placeholder.SolutionFile], navigationLevel + 1);
                     nextMergeWithPageBreak = true;
                 }
                 else if (article is SDArticlePlaceholder)
                 {
-                    var placeholderTemplate = new PlaceholderTemplate(article.Title, _currentOutputPath);
+                    var placeholderTemplate = new PlaceholderTemplate(article.Title, _currentOutputPath, navigationLevel);
                     placeholderTemplate.CreateDocument();
                     _mainTemplate.MergeWith(placeholderTemplate.TemplatePath, nextMergeWithPageBreak);
                     nextMergeWithPageBreak = false;
@@ -96,11 +100,13 @@ namespace SharpDox.Plugins.Word
 
         private void CreateApiDoc(SDRepository sdRepository, int navigationLevel)
         {
+            var pageBreak = false; // don't insert a page break before first namespace
             foreach (var sdNamespace in sdRepository.GetAllNamespaces())
             {
                 var namespaceTemplate = new NamespaceTemplate(sdNamespace, _currentDocLanguage, _currentOutputPath, navigationLevel);
                 namespaceTemplate.CreateDocument();
-                _mainTemplate.MergeWith(namespaceTemplate.TemplatePath, true);
+                _mainTemplate.MergeWith(namespaceTemplate.TemplatePath, pageBreak);
+                pageBreak = true;
             }
         }
 
