@@ -79,6 +79,7 @@
     <Compile Include="Templaters\ArticleTemplate.cs" />
     <Compile Include="Templaters\PlaceholderTemplate.cs" />
     <Compile Include="Templaters\MainTemplate.cs" />
+    <Compile Include="Icons.cs" />
     <Compile Include="Templates.cs" />
     <Compile Include="Templaters\NamespaceTemplate.cs" />
   </ItemGroup>

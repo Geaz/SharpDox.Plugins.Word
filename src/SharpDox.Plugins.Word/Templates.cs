@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SharpDox.Plugins.Word
+﻿namespace SharpDox.Plugins.Word
 {
     internal static class Templates
     {

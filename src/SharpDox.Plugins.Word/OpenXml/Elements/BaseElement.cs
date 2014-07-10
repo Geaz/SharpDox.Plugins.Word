@@ -12,6 +12,7 @@ namespace SharpDox.Plugins.Word.OpenXml.Elements
             _content = content;
         }
 
+        public abstract void AppendTo(OpenXmlElement openXmlNode, MainDocumentPart mainDocumentPart);
         public abstract void InsertAfter(OpenXmlElement openXmlNode, MainDocumentPart mainDocumentPart);
     }
 }

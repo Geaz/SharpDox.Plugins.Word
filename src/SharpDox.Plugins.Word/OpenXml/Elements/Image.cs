@@ -12,13 +12,21 @@ namespace SharpDox.Plugins.Word.OpenXml.Elements
 {
     internal class Image : BaseElement
     {
-        public Size _imageSize;
-        public Size _customSize;
-        public MainDocumentPart _mainDocumentPart;
+        private Size _imageSize;
+        private Size _customSize;
+        private MainDocumentPart _mainDocumentPart;
 
         public Image(string content, int? width = null, int? height = null) : base(content) 
         {
             GetImageSize(width, height);
+        }
+
+        public override void AppendTo(OpenXmlElement openXmlNode, MainDocumentPart mainDocumentPart)
+        {
+            _mainDocumentPart = mainDocumentPart;
+
+            var imagePart = CreateImagePart();
+            openXmlNode.Append(CreateImageElement(mainDocumentPart.GetIdOfPart(imagePart), Path.GetFileName(_content)));
         }
 
         public override void InsertAfter(OpenXmlElement openXmlNode, MainDocumentPart mainDocumentPart)
@@ -46,11 +54,11 @@ namespace SharpDox.Plugins.Word.OpenXml.Elements
             }
             else if(width != null)
             {
-                _customSize = new Size(width.Value, (int)((_imageSize.Width / width.Value) * _imageSize.Height));
+                _customSize = new Size(width.Value, ((_imageSize.Width / width.Value) * _imageSize.Height));
             }
-            else if (width != null)
+            else
             {
-                _customSize = new Size((int)((_imageSize.Height / height.Value) * _imageSize.Width), height.Value);
+                _customSize = new Size(((_imageSize.Height / height.Value) * _imageSize.Width), height.Value);
             }
         }
 

@@ -9,6 +9,11 @@ namespace SharpDox.Plugins.Word.OpenXml.Elements
     {
         public PlainText(string content) : base(content) { }
 
+        public override void AppendTo(OpenXmlElement openXmlNode, MainDocumentPart mainDocumentPart)
+        {
+            openXmlNode.Append(new Run(new Text(_content)));
+        }
+
         public override void InsertAfter(OpenXmlElement openXmlNode, MainDocumentPart mainDocumentPart)
         {
             openXmlNode.InsertAfterSelf(new Run(new Text(_content)));

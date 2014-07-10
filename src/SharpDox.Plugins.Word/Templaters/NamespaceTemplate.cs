@@ -1,4 +1,5 @@
-﻿using MarkdownSharp;
+﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using MarkdownSharp;
 using SharpDox.Model.Documentation;
 using SharpDox.Model.Repository;
 using SharpDox.Plugins.Word.OpenXml;
@@ -17,7 +18,7 @@ namespace SharpDox.Plugins.Word.Templaters
         public NamespaceTemplate(SDNamespace sdNamespace, string language, string outputPath, int navigationLevel) : base(outputPath, Templates.Namespace)
         {
             _sdNamespace = sdNamespace;
-            _language = sdNamespace.Description.ContainsKey(language) ? language : "default";
+            _language = language;
             _navigationLevel = navigationLevel;
         }
 
@@ -47,9 +48,10 @@ namespace SharpDox.Plugins.Word.Templaters
                 SDDocumentation documentation;
                 sdType.Documentation.TryGetValue(_language, out documentation);
 
-                _templater.AddRowToTable(0, new[] {
-                    sdType.Name,
-                    documentation != null ? documentation.Summary.ToString() : string.Empty
+                _templater.AddRowToTable(0, new List<BaseElement> {
+                    new Image(Icons.GetIconPath("class", sdType.Accessibility)),
+                    new PlainText(sdType.Name),
+                    new PlainText(documentation != null ? documentation.Summary.ToString() : string.Empty)
                 });
             }
         }

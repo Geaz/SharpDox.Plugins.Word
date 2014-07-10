@@ -59,12 +59,12 @@ namespace SharpDox.Plugins.Word.OpenXml
                 }
                 else
                 {
-                    Trace.TraceWarning(string.Format("Bookmark {0} not found", fieldData.FieldName));
+                    Trace.TraceWarning("Bookmark {0} not found", fieldData.FieldName);
                 }
             }
         }
 
-        public void AddRowToTable(int tableIndex, string[] fields)
+        public void AddRowToTable(int tableIndex, List<BaseElement> fields)
         {
             using (var document = WordprocessingDocument.Open(_templateFile, true))
             {
@@ -74,7 +74,12 @@ namespace SharpDox.Plugins.Word.OpenXml
                     var tableCells = new List<TableCell>();
                     foreach (var field in fields)
                     {
-                        tableCells.Add(new TableCell(new Paragraph(new Run(new Text(field)))));
+                        var tableCell = new TableCell();
+                        var paragraph = new Paragraph();
+                        field.AppendTo(paragraph, document.MainDocumentPart);
+
+                        tableCell.Append(paragraph);
+                        tableCells.Add(tableCell);
                     }
 
                     tables[tableIndex].Append(new TableRow(tableCells));
