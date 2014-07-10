@@ -1,4 +1,5 @@
 ﻿using SharpDox.Plugins.Word.OpenXml;
+using SharpDox.Plugins.Word.OpenXml.Elements;
 using System.Collections.Generic;
 
 namespace SharpDox.Plugins.Word.Templaters
@@ -15,7 +16,7 @@ namespace SharpDox.Plugins.Word.Templaters
         public override void CreateDocument()
         {
             var data = new List<FieldData>();
-            data.Add(new FieldData("Title", _title));
+            data.Add(new FieldData("Title", new PlainText(_title)));
             _templater.ReplaceBookmarks(data);
         }
     }

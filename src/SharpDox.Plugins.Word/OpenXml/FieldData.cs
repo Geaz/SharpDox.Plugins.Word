@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpDox.Plugins.Word.OpenXml.Elements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,16 +9,14 @@ namespace SharpDox.Plugins.Word.OpenXml
 {
     internal class FieldData
     {
-        public FieldData(string fieldName, string text, bool isMarkdown = false)
+        public FieldData(string fieldName, BaseElement element)
         {
             FieldName = fieldName;
-            Text = text;
-            IsMarkDown = isMarkdown;
+            Element = element;
         }
 
         public string FieldName { get; set; }
-        public string Text { get; set; }
+        public BaseElement Element { get; set; }
         public string StyleName { get; set; }
-        public bool IsMarkDown { get; set; }
     }
 }

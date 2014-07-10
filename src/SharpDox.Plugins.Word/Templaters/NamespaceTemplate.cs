@@ -2,6 +2,7 @@
 using SharpDox.Model.Documentation;
 using SharpDox.Model.Repository;
 using SharpDox.Plugins.Word.OpenXml;
+using SharpDox.Plugins.Word.OpenXml.Elements;
 using System.Collections.Generic;
 using System.IO;
 
@@ -33,8 +34,8 @@ namespace SharpDox.Plugins.Word.Templaters
             _sdNamespace.Description.TryGetValue(_language, out description);
 
             var data = new List<FieldData>();
-            data.Add(new FieldData("Fullname", _sdNamespace.Fullname) { StyleName = string.Format("Heading {0}", _navigationLevel) });
-            data.Add(new FieldData("Description", new Markdown().Transform(description), true));
+            data.Add(new FieldData("Fullname", new PlainText(_sdNamespace.Fullname)) { StyleName = string.Format("Heading {0}", _navigationLevel) });
+            data.Add(new FieldData("Description", new RichText(new Markdown().Transform(description))));
 
             _templater.ReplaceBookmarks(data);
         }

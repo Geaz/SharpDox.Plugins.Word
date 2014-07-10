@@ -1,5 +1,6 @@
 ﻿using SharpDox.Model;
 using SharpDox.Plugins.Word.OpenXml;
+using SharpDox.Plugins.Word.OpenXml.Elements;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,13 +25,13 @@ namespace SharpDox.Plugins.Word.Templaters
             //_sdProject.Description.TryGetValue(_language, out description);
 
             var data = new List<FieldData>();
-            data.Add(new FieldData("Title", _sdProject.ProjectName));
-            data.Add(new FieldData("Version", _sdProject.VersionNumber));
-            data.Add(new FieldData("Author", _sdProject.Author));
-            data.Add(new FieldData("AuthorUrl", _sdProject.AuthorUrl));
-            data.Add(new FieldData("ProjectUrl", _sdProject.ProjectUrl));
-            data.Add(new FieldData("Disclaimer", "This document was created by sharpDox"));
-            data.Add(new FieldData("Header", string.Format("{0} {1}", _sdProject.ProjectName, _sdProject.VersionNumber)));
+            data.Add(new FieldData("Title", string.IsNullOrEmpty(_sdProject.LogoPath) ? (BaseElement)new PlainText(_sdProject.ProjectName) : (BaseElement)new Image(_sdProject.LogoPath)));
+            data.Add(new FieldData("Version", new PlainText(_sdProject.VersionNumber)));
+            data.Add(new FieldData("Author", new PlainText(_sdProject.Author)));
+            data.Add(new FieldData("AuthorUrl", new PlainText(_sdProject.AuthorUrl)));
+            data.Add(new FieldData("ProjectUrl", new PlainText(_sdProject.ProjectUrl)));
+            data.Add(new FieldData("Disclaimer", new PlainText("This document was created by sharpDox")));
+            data.Add(new FieldData("Header", new PlainText(string.Format("{0} {1}", _sdProject.ProjectName, _sdProject.VersionNumber))));
             _templater.ReplaceBookmarks(data);
         }
 

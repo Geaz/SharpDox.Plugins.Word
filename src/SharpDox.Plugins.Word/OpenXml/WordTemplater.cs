@@ -1,7 +1,7 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using NotesFor.HtmlToOpenXml;
+using SharpDox.Plugins.Word.OpenXml.Elements;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,7 +17,7 @@ namespace SharpDox.Plugins.Word.OpenXml
             _templateFile = templateFile;
         }
 
-        public void ReplaceBookmarks(List<FieldData> fieldData)
+        public void ReplaceBookmarks(IEnumerable<FieldData> fieldData)
         {
             foreach (var data in fieldData)
             {
@@ -34,26 +34,19 @@ namespace SharpDox.Plugins.Word.OpenXml
                 {
                     DeleteBookmarkContent(bookmarks[fieldData.FieldName]);
 
-                    if (fieldData.IsMarkDown)
+                    if(fieldData.Element is RichText)
                     {
-                        var converter = new HtmlConverter(document.MainDocumentPart) { RenderPreAsTable = false };
-                        var paragraphs = converter.Parse(fieldData.Text.Replace("<pre>", "<p class=\"codesnippet\"><pre>").Replace("</pre>", "</pre></p>"));
-
-                        var insertPoint = bookmarks[fieldData.FieldName].Parent;
-                        foreach (var paragraph in paragraphs)
-                        {
-                            insertPoint.InsertAfterSelf(paragraph);
-                            insertPoint = paragraph;
-                        }
+                        fieldData.Element.InsertAfter(bookmarks[fieldData.FieldName].Parent, document.MainDocumentPart);
+                        // Richtext already includes style information (converted from html), no need to add it
 
                         // Bookmarks are included in Paragraphs
-                        // But it paragraph included in paragraphs are not allowed
+                        // But paragraphs included in paragraphs are not allowed
                         // Thats why we delete the whole paragraph after inserting our new ones
                         bookmarks[fieldData.FieldName].Parent.Remove();
                     }
                     else
                     {
-                        bookmarks[fieldData.FieldName].InsertAfterSelf(new Run(new Text(fieldData.Text)));
+                        fieldData.Element.InsertAfter(bookmarks[fieldData.FieldName], document.MainDocumentPart);
                         if (!string.IsNullOrEmpty(fieldData.StyleName))
                         {
                             var styleId = GetStyleIdbyName(document.MainDocumentPart, fieldData.StyleName);
@@ -130,6 +123,8 @@ namespace SharpDox.Plugins.Word.OpenXml
                 item.Remove();
             }
         }
+
+
 
         private string GetStyleIdbyName(MainDocumentPart mainDocumentPart, string styleName)
         {
