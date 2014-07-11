@@ -6,6 +6,7 @@ using SharpDox.Model.Documentation.Article;
 using SharpDox.Model.Repository;
 using SharpDox.Plugins.Word.Templaters;
 using SharpDox.Sdk.Exporter;
+using SharpDox.Sdk.Local;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,6 +27,13 @@ namespace SharpDox.Plugins.Word
 
         private string _currentOutputPath, _currentDocLanguage;
         private MainTemplate _mainTemplate;
+
+        private readonly ILocalController _localController;
+
+        public Exporter(ILocalController localController)
+        {
+            _localController = localController;
+        }
 
         public void Export(SDProject sdProject, string outputPath)
         {
@@ -85,7 +93,7 @@ namespace SharpDox.Plugins.Word
                 }
                 else
                 {
-                    var articleTemplate = new ArticleTemplate(article, _currentOutputPath, navigationLevel);
+                    var articleTemplate = new ArticleTemplate(_sdProject, article, _currentOutputPath, navigationLevel);
                     articleTemplate.CreateDocument();
                     _mainTemplate.MergeWith(articleTemplate.TemplatePath, nextMergeWithPageBreak);
                     nextMergeWithPageBreak = true;
@@ -103,7 +111,11 @@ namespace SharpDox.Plugins.Word
             var pageBreak = false; // don't insert a page break before first namespace
             foreach (var sdNamespace in sdRepository.GetAllNamespaces())
             {
-                var namespaceTemplate = new NamespaceTemplate(sdNamespace, _currentDocLanguage, _currentOutputPath, navigationLevel);
+                var namespaceTemplate = new NamespaceTemplate(
+                    _sdProject,
+                    sdNamespace,
+                    _localController.GetLocalStringsOrDefault<WordStrings>(_currentDocLanguage), 
+                    _currentDocLanguage, _currentOutputPath, navigationLevel);
                 namespaceTemplate.CreateDocument();
                 _mainTemplate.MergeWith(namespaceTemplate.TemplatePath, pageBreak);
                 pageBreak = true;

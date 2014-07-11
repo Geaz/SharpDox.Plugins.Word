@@ -1,23 +1,26 @@
-﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
-using MarkdownSharp;
-using SharpDox.Model.Documentation;
+﻿using MarkdownSharp;
+using SharpDox.Model;
 using SharpDox.Model.Repository;
 using SharpDox.Plugins.Word.OpenXml;
 using SharpDox.Plugins.Word.OpenXml.Elements;
 using System.Collections.Generic;
-using System.IO;
 
 namespace SharpDox.Plugins.Word.Templaters
 {
     internal class NamespaceTemplate : BaseTemplate
     {
+        private readonly SDProject _sdProject;
         private readonly SDNamespace _sdNamespace;
+        private readonly WordStrings _wordStrings;
         private readonly string _language;
         private readonly int _navigationLevel;
 
-        public NamespaceTemplate(SDNamespace sdNamespace, string language, string outputPath, int navigationLevel) : base(outputPath, Templates.Namespace)
+        public NamespaceTemplate(SDProject sdProject, SDNamespace sdNamespace, WordStrings wordStrings, string language, string outputPath, int navigationLevel) 
+            : base(outputPath, Templates.Namespace)
         {
+            _sdProject = sdProject;
             _sdNamespace = sdNamespace;
+            _wordStrings = wordStrings;
             _language = language;
             _navigationLevel = navigationLevel;
         }
@@ -31,12 +34,13 @@ namespace SharpDox.Plugins.Word.Templaters
 
         private void ReplaceBookmarks()
         {
-            var description = string.Empty;
-            _sdNamespace.Description.TryGetValue(_language, out description);
-
+            var description = _sdNamespace.Description.GetElementOrDefault(_language);
             var data = new List<FieldData>();
             data.Add(new FieldData("Fullname", new PlainText(_sdNamespace.Fullname)) { StyleName = string.Format("Heading {0}", _navigationLevel) });
-            data.Add(new FieldData("Description", new RichText(new Markdown().Transform(description))));
+            data.Add(new FieldData("Description", new RichText(description != null ? new Markdown().Transform(description.Transform(new Helper(_sdProject).TransformLinkToken)) : string.Empty)));
+            data.Add(new FieldData("Type_Text", new PlainText(_wordStrings.Types)) { StyleName = string.Format("Heading {0}", _navigationLevel + 1) });
+            data.Add(new FieldData("Name_Text", new PlainText(_wordStrings.Name)));
+            data.Add(new FieldData("Description_Text", new PlainText(_wordStrings.Description)));
 
             _templater.ReplaceBookmarks(data);
         }
@@ -45,9 +49,7 @@ namespace SharpDox.Plugins.Word.Templaters
         {
             foreach (var sdType in _sdNamespace.Types)
             {
-                SDDocumentation documentation;
-                sdType.Documentation.TryGetValue(_language, out documentation);
-
+                var documentation = sdType.Documentations.GetElementOrDefault(_language);
                 _templater.AddRowToTable(0, new List<BaseElement> {
                     new Image(Icons.GetIconPath("class", sdType.Accessibility)),
                     new PlainText(sdType.Name),
@@ -58,7 +60,10 @@ namespace SharpDox.Plugins.Word.Templaters
 
         private void CreateAndMergeTypeDocuments()
         {
+            foreach(var sdType in _sdNamespace.Types)
+            {
 
+            }
         }
     }
 }

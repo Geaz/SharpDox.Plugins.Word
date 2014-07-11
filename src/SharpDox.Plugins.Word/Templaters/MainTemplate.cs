@@ -1,7 +1,6 @@
 ﻿using SharpDox.Model;
 using SharpDox.Plugins.Word.OpenXml;
 using SharpDox.Plugins.Word.OpenXml.Elements;
-using System;
 using System.Collections.Generic;
 using System.IO;
 

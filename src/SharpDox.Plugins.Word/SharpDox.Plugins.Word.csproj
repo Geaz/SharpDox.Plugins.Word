@@ -82,6 +82,7 @@
     <Compile Include="Icons.cs" />
     <Compile Include="Templates.cs" />
     <Compile Include="Templaters\NamespaceTemplate.cs" />
+    <Compile Include="WordStrings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
