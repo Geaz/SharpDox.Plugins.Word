@@ -70,7 +70,7 @@ namespace SharpDox.Plugins.Word
 
         public bool CheckRequirements() { return true; }
 
-        private void CreateArticles(IEnumerable<SDArticle> articles, bool nextMergeWithPageBreak, int navigationLevel)
+        private bool CreateArticles(IEnumerable<SDArticle> articles, bool nextMergeWithPageBreak, int navigationLevel)
         {
             foreach (var article in articles)
             {
@@ -101,9 +101,10 @@ namespace SharpDox.Plugins.Word
 
                 if(article.Children.Count > 0)
                 {
-                    CreateArticles(article.Children, nextMergeWithPageBreak, navigationLevel + 1);
+                    nextMergeWithPageBreak = CreateArticles(article.Children, nextMergeWithPageBreak, navigationLevel + 1);
                 }
             }
+            return nextMergeWithPageBreak;
         }
 
         private void CreateApiDoc(SDRepository sdRepository, int navigationLevel)
