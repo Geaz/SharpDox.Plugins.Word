@@ -34,7 +34,7 @@ namespace SharpDox.Plugins.Word.Templaters
 
         private void ReplaceBookmarks()
         {
-            var description = _sdNamespace.Description.GetElementOrDefault(_language);
+            var description = _sdNamespace.Descriptions.GetElementOrDefault(_language);
             var data = new List<FieldData>();
             data.Add(new FieldData("Fullname", new PlainText(_sdNamespace.Fullname)) { StyleName = string.Format("Heading {0}", _navigationLevel) });
             data.Add(new FieldData("Description", new RichText(description != null ? new Markdown().Transform(description.Transform(new Helper(_sdProject).TransformLinkToken)) : string.Empty)));

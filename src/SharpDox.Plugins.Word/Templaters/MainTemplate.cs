@@ -14,7 +14,7 @@ namespace SharpDox.Plugins.Word.Templaters
         public MainTemplate(SDProject sdProject, string language, string outputPath) : base(outputPath, Templates.Main)
         {
             _sdProject = sdProject;
-            _language = sdProject.Description.ContainsKey(language) ? language : "default";
+            _language = language;
         }
 
         public override void CreateDocument()
