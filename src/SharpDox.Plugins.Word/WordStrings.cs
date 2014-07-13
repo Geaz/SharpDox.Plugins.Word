@@ -1,9 +1,4 @@
 ﻿using SharpDox.Sdk.Local;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharpDox.Plugins.Word
 {
@@ -13,6 +8,9 @@ namespace SharpDox.Plugins.Word
         private string _name = "Name";
         private string _description = "Description";
         private string _types = "Types";
+        private string _disclaimer = "Created by sharpDox (http://sharpdox.de)";
+        private string _tocHeader = "Table of contents";
+        private string _tocBodyPlaceholder = "Please refresh the table.";
 
         public string Title
         {
@@ -36,6 +34,24 @@ namespace SharpDox.Plugins.Word
         {
             get { return _types; }
             set { _types = value; }
+        }
+
+        public string Disclaimer
+        {
+            get { return _disclaimer; }
+            set { _disclaimer = value; }
+        }
+
+        public string TocHeader
+        {
+            get { return _tocHeader; }
+            set { _tocHeader = value; }
+        }
+
+        public string TocBodyPlaceholder
+        {
+            get { return _tocBodyPlaceholder; }
+            set { _tocBodyPlaceholder = value; }
         }
 
         public string DisplayName { get { return "WordExporter"; } }

@@ -9,11 +9,13 @@ namespace SharpDox.Plugins.Word.Templaters
     internal class MainTemplate : BaseTemplate
     {
         private readonly SDProject _sdProject;
+        private readonly WordStrings _wordStrings;
         private readonly string _language;
 
-        public MainTemplate(SDProject sdProject, string language, string outputPath) : base(outputPath, Templates.Main)
+        public MainTemplate(SDProject sdProject, WordStrings wordStrings, string language, string outputPath) : base(outputPath, Templates.Main)
         {
             _sdProject = sdProject;
+            _wordStrings = wordStrings;
             _language = language;
         }
 
@@ -29,8 +31,10 @@ namespace SharpDox.Plugins.Word.Templaters
             data.Add(new FieldData("Author", new PlainText(_sdProject.Author)));
             data.Add(new FieldData("AuthorUrl", new PlainText(_sdProject.AuthorUrl)));
             data.Add(new FieldData("ProjectUrl", new PlainText(_sdProject.ProjectUrl)));
-            data.Add(new FieldData("Disclaimer", new PlainText("This document was created by sharpDox")));
+            data.Add(new FieldData("Disclaimer", new PlainText(_wordStrings.Disclaimer)));
             data.Add(new FieldData("Header", new PlainText(string.Format("{0} {1}", _sdProject.ProjectName, _sdProject.VersionNumber))));
+            //data.Add(new FieldData("Toc_Header", new PlainText(_wordStrings.TocHeader)));
+            //data.Add(new FieldData("Toc_BodyPlaceholder", new PlainText(_wordStrings.TocBodyPlaceholder)));
             _templater.ReplaceBookmarks(data);
         }
 

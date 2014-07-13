@@ -47,7 +47,11 @@ namespace SharpDox.Plugins.Word
                 _currentOutputPath = Path.Combine(outputPath, docLanguage);
                 _currentDocLanguage = docLanguage;
 
-                _mainTemplate = new MainTemplate(sdProject, _currentDocLanguage, _currentOutputPath);
+                _mainTemplate = new MainTemplate(
+                    sdProject, 
+                    _localController.GetLocalStringsOrDefault<WordStrings>(_currentDocLanguage), 
+                    _currentDocLanguage, 
+                    _currentOutputPath);
                 _mainTemplate.CreateDocument();
 
                 if(sdProject.Articles.Count != 0)
