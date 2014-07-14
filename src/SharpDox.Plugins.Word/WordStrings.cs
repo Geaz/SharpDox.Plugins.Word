@@ -8,6 +8,7 @@ namespace SharpDox.Plugins.Word
         private string _name = "Name";
         private string _description = "Description";
         private string _types = "Types";
+        private string _overview = "Overview";
         private string _disclaimer = "Created by sharpDox (http://sharpdox.de)";
         private string _tocHeader = "Table of contents";
         private string _tocBodyPlaceholder = "Please refresh the table.";
@@ -34,6 +35,12 @@ namespace SharpDox.Plugins.Word
         {
             get { return _types; }
             set { _types = value; }
+        }
+
+        public string Overview
+        {
+            get { return _overview; }
+            set { _overview = value; }
         }
 
         public string Disclaimer

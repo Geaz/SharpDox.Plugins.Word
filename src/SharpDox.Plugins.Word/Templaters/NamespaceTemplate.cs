@@ -38,7 +38,7 @@ namespace SharpDox.Plugins.Word.Templaters
             var data = new List<FieldData>();
             data.Add(new FieldData("Fullname", new PlainText(_sdNamespace.Fullname)) { StyleName = string.Format("Heading {0}", _navigationLevel) });
             data.Add(new FieldData("Description", new RichText(description != null ? new Markdown().Transform(description.Transform(new Helper(_sdProject).TransformLinkToken)) : string.Empty)));
-            data.Add(new FieldData("Type_Text", new PlainText(_wordStrings.Types)) { StyleName = string.Format("Heading {0}", _navigationLevel + 1) });
+            data.Add(new FieldData("Overview_Text", new PlainText(_wordStrings.Overview)) { StyleName = string.Format("Heading {0}", _navigationLevel + 1) });
             data.Add(new FieldData("Name_Text", new PlainText(_wordStrings.Name)));
             data.Add(new FieldData("Description_Text", new PlainText(_wordStrings.Description)));
 
