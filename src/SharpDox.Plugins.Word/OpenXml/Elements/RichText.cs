@@ -33,8 +33,10 @@ namespace SharpDox.Plugins.Word.OpenXml.Elements
         {
             var converter = new HtmlConverter(mainDocumentPart) { RenderPreAsTable = false };
             return converter.Parse(_content
-                .Replace("<pre>", "<p class=\"codesnippet\"><pre>")
-                .Replace("</pre>", "</pre></p>")
+                .Replace("<pre><code>", "<p class=\"codesnippet\"><pre>")
+                .Replace("</code></pre>", "</pre></p>")
+                .Replace("<code>", "<span class=\"inlinecodesnippet\">")
+                .Replace("</code>", "</span>")
                 .Replace("<img", "<img width=\"550\""));
         }
     }
