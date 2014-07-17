@@ -10,6 +10,17 @@ namespace SharpDox.Plugins.Word
         private string _types = "Types";
         private string _overview = "Overview";
         private string _disclaimer = "Created by sharpDox (http://sharpdox.de)";
+        private string _remarks = "Remarks";
+        private string _example = "Example";
+        private string _exceptions = "Exceptions";
+        private string _typeParams = "Type Parameters";
+        private string _seeAlso = "See also";
+        private string _uses = "Uses";
+        private string _usedBy = "Used By";
+        private string _fields = "Fields";
+        private string _events = "Events";
+        private string _methods = "Methods";
+        private string _properties = "Properties";
         private string _tocHeader = "Table of contents";
         private string _tocBodyPlaceholder = "Please refresh the table.";
 
@@ -59,6 +70,72 @@ namespace SharpDox.Plugins.Word
         {
             get { return _tocBodyPlaceholder; }
             set { _tocBodyPlaceholder = value; }
+        }
+
+        public string Remarks
+        {
+            get { return _remarks; }
+            set { _remarks = value; }
+        }
+
+        public string Example
+        {
+            get { return _example; }
+            set { _example = value; }
+        }
+
+        public string Exceptions
+        {
+            get { return _exceptions; }
+            set { _exceptions = value; }
+        }
+
+        public string TypeParams
+        {
+            get { return _typeParams; }
+            set { _typeParams = value; }
+        }
+
+        public string SeeAlso
+        {
+            get { return _seeAlso; }
+            set { _seeAlso = value; }
+        }
+
+        public string Uses
+        {
+            get { return _uses; }
+            set { _uses = value; }
+        }
+
+        public string UsedBy
+        {
+            get { return _usedBy; }
+            set { _usedBy = value; }
+        }
+
+        public string Fields
+        {
+            get { return _fields; }
+            set { _fields = value; }
+        }
+
+        public string Events
+        {
+            get { return _events; }
+            set { _events = value; }
+        }
+
+        public string Methods
+        {
+            get { return _methods; }
+            set { _methods = value; }
+        }
+
+        public string Properties
+        {
+            get { return _properties; }
+            set { _properties = value; }
         }
 
         public string DisplayName { get { return "WordExporter"; } }

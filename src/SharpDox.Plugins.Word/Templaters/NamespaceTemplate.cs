@@ -29,7 +29,6 @@ namespace SharpDox.Plugins.Word.Templaters
         {
             ReplaceBookmarks();
             FillTable();
-            CreateAndMergeTypeDocuments();
         }
 
         private void ReplaceBookmarks()
@@ -55,14 +54,6 @@ namespace SharpDox.Plugins.Word.Templaters
                     new PlainText(sdType.Name),
                     new PlainText(documentation != null ? documentation.Summary.ToString() : string.Empty)
                 });
-            }
-        }
-
-        private void CreateAndMergeTypeDocuments()
-        {
-            foreach(var sdType in _sdNamespace.Types)
-            {
-
             }
         }
     }

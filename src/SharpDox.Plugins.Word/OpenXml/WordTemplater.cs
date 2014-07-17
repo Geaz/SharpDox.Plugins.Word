@@ -5,6 +5,7 @@ using SharpDox.Plugins.Word.OpenXml.Elements;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Field = DocumentFormat.OpenXml.Drawing.Field;
 
 namespace SharpDox.Plugins.Word.OpenXml
 {
@@ -32,27 +33,32 @@ namespace SharpDox.Plugins.Word.OpenXml
                 var bookmarks = GetAllBookmarks(document);
                 if (bookmarks.ContainsKey(fieldData.FieldName))
                 {
-                    DeleteBookmarkContent(bookmarks[fieldData.FieldName]);
-
-                    if(fieldData.Element is RichText)
+                    foreach (var bookmark in bookmarks[fieldData.FieldName])
                     {
-                        fieldData.Element.InsertAfter(bookmarks[fieldData.FieldName].Parent, document.MainDocumentPart);
-                        // Richtext already includes style information (converted from html), no need to add it
+                        DeleteBookmarkContent(bookmark);
 
-                        // Bookmarks are included in Paragraphs
-                        // But paragraphs included in paragraphs are not allowed
-                        // Thats why we delete the whole paragraph after inserting our new ones
-                        bookmarks[fieldData.FieldName].Parent.Remove();
-                    }
-                    else
-                    {
-                        fieldData.Element.InsertAfter(bookmarks[fieldData.FieldName], document.MainDocumentPart);
-                        if (!string.IsNullOrEmpty(fieldData.StyleName))
+                        if (fieldData.Element is RichText)
                         {
-                            var styleId = GetStyleIdbyName(document.MainDocumentPart, fieldData.StyleName);
-                            if (!string.IsNullOrEmpty(styleId))
+                            fieldData.Element.InsertAfter(bookmark.Parent,
+                                document.MainDocumentPart);
+                            // Richtext already includes style information (converted from html), no need to add it
+
+                            // Bookmarks are included in Paragraphs
+                            // But paragraphs included in paragraphs are not allowed
+                            // Thats why we delete the whole paragraph after inserting our new ones
+                            bookmark.Parent.Remove();
+                        }
+                        else
+                        {
+                            fieldData.Element.InsertAfter(bookmark, document.MainDocumentPart);
+                            if (!string.IsNullOrEmpty(fieldData.StyleName))
                             {
-                                ((Paragraph)bookmarks[fieldData.FieldName].Parent).ParagraphProperties = new ParagraphProperties(new ParagraphStyleId() { Val = styleId });
+                                var styleId = GetStyleIdbyName(document.MainDocumentPart, fieldData.StyleName);
+                                if (!string.IsNullOrEmpty(styleId))
+                                {
+                                    ((Paragraph)bookmark.Parent).ParagraphProperties =
+                                        new ParagraphProperties(new ParagraphStyleId() {Val = styleId});
+                                }
                             }
                         }
                     }
@@ -87,26 +93,38 @@ namespace SharpDox.Plugins.Word.OpenXml
             }
         }
 
-        private Dictionary<string, BookmarkStart> GetAllBookmarks(WordprocessingDocument document)
+        private Dictionary<string, List<BookmarkStart>> GetAllBookmarks(WordprocessingDocument document)
         {
-            var bookmarkMap = new Dictionary<string, BookmarkStart>();
+            var bookmarkMap = new Dictionary<string, List<BookmarkStart>>();
             
             foreach (BookmarkStart bookmarkStart in document.MainDocumentPart.RootElement.Descendants<BookmarkStart>())
             {
-                bookmarkMap[bookmarkStart.Name] = bookmarkStart;
+                if (!bookmarkMap.ContainsKey(bookmarkStart.Name))
+                {
+                    bookmarkMap.Add(bookmarkStart.Name, new List<BookmarkStart>());
+                }
+                bookmarkMap[bookmarkStart.Name].Add(bookmarkStart);
             }
             foreach (var header in document.MainDocumentPart.HeaderParts)
             {
                 foreach (BookmarkStart bookmarkStart in header.Header.Descendants<BookmarkStart>())
                 {
-                    bookmarkMap[bookmarkStart.Name] = bookmarkStart;
+                    if (!bookmarkMap.ContainsKey(bookmarkStart.Name))
+                    {
+                        bookmarkMap.Add(bookmarkStart.Name, new List<BookmarkStart>());
+                    }
+                    bookmarkMap[bookmarkStart.Name].Add(bookmarkStart);
                 }
             }
             foreach (var footer in document.MainDocumentPart.FooterParts)
             {
                 foreach (BookmarkStart bookmarkStart in footer.Footer.Descendants<BookmarkStart>())
                 {
-                    bookmarkMap[bookmarkStart.Name] = bookmarkStart;
+                    if (!bookmarkMap.ContainsKey(bookmarkStart.Name))
+                    {
+                        bookmarkMap.Add(bookmarkStart.Name, new List<BookmarkStart>());
+                    }
+                    bookmarkMap[bookmarkStart.Name].Add(bookmarkStart);
                 }
             }
 

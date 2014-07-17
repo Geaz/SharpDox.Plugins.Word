@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Validation;
 using SharpDox.Model;
 using SharpDox.Model.Documentation.Article;
 using SharpDox.Model.Repository;
+using SharpDox.Plugins.Word.OpenXml;
 using SharpDox.Plugins.Word.Templaters;
 using SharpDox.Sdk.Exporter;
 using SharpDox.Sdk.Local;
@@ -124,6 +125,20 @@ namespace SharpDox.Plugins.Word
                 namespaceTemplate.CreateDocument();
                 _mainTemplate.MergeWith(namespaceTemplate.TemplatePath, pageBreak);
                 pageBreak = true;
+
+                // Because the wordmerger doesn't include altChunks from the sourcefile 
+                // we need to create each document here to merge it with the main document
+                foreach (var sdType in sdNamespace.Types)
+                {
+                    var typeTemplate = new TypeTemplate(
+                        sdType,
+                        _localController.GetLocalStringsOrDefault<WordStrings>(_currentDocLanguage),
+                        _currentDocLanguage, 
+                        _currentOutputPath,
+                        navigationLevel + 1);
+                    typeTemplate.CreateDocument();
+                    _mainTemplate.MergeWith(typeTemplate.TemplatePath, true);
+                }
             }
         }
 

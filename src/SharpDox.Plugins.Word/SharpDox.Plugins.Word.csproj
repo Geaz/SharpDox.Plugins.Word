@@ -79,6 +79,7 @@
     <Compile Include="OpenXml\WordTemplater.cs" />
     <Compile Include="Templaters\BaseTemplate.cs" />
     <Compile Include="Templaters\ArticleTemplate.cs" />
+    <Compile Include="Templaters\TypeTemplate.cs" />
     <Compile Include="Templaters\PlaceholderTemplate.cs" />
     <Compile Include="Templaters\MainTemplate.cs" />
     <Compile Include="Icons.cs" />
