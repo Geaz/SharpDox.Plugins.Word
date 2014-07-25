@@ -4,6 +4,11 @@ namespace SharpDox.Plugins.Word
 {
     public class WordStrings : ILocalStrings
     {
+        private string _loadingTemplate = "Loading template";
+        private string _creatingDocument = "Creating document";
+        private string _savingDocument = "Saving Document";
+        private string _deleteTmp = "Deleting temporary folder";
+
         private string _title = "Title";
         private string _name = "Name";
         private string _description = "Description";
@@ -11,9 +16,11 @@ namespace SharpDox.Plugins.Word
         private string _overview = "Overview";
         private string _disclaimer = "Created by sharpDox (http://sharpdox.de)";
         private string _remarks = "Remarks";
+        private string _returns = "Returns";
         private string _example = "Example";
         private string _exceptions = "Exceptions";
         private string _typeParams = "Type Parameters";
+        private string _params = "Paramters";
         private string _seeAlso = "See also";
         private string _uses = "Uses";
         private string _usedBy = "Used By";
@@ -21,8 +28,31 @@ namespace SharpDox.Plugins.Word
         private string _events = "Events";
         private string _methods = "Methods";
         private string _properties = "Properties";
-        private string _tocHeader = "Table of contents";
-        private string _tocBodyPlaceholder = "Please refresh the table.";
+        private string _tocPlaceholder = "Please insert a table of contents.";
+
+        public string LoadingTemplate
+        {
+            get { return _loadingTemplate; }
+            set { _loadingTemplate = value; }
+        }
+
+        public string CreatingDocument
+        {
+            get { return _creatingDocument; }
+            set { _creatingDocument = value; }
+        }
+
+        public string SavingDocument
+        {
+            get { return _savingDocument; }
+            set { _savingDocument = value; }
+        }
+
+        public string DeleteTmp
+        {
+            get { return _deleteTmp; }
+            set { _deleteTmp = value; }
+        }
 
         public string Title
         {
@@ -60,22 +90,22 @@ namespace SharpDox.Plugins.Word
             set { _disclaimer = value; }
         }
 
-        public string TocHeader
+        public string TocPlaceholder
         {
-            get { return _tocHeader; }
-            set { _tocHeader = value; }
-        }
-
-        public string TocBodyPlaceholder
-        {
-            get { return _tocBodyPlaceholder; }
-            set { _tocBodyPlaceholder = value; }
+            get { return _tocPlaceholder; }
+            set { _tocPlaceholder = value; }
         }
 
         public string Remarks
         {
             get { return _remarks; }
             set { _remarks = value; }
+        }
+
+        public string Returns
+        {
+            get { return _returns; }
+            set { _returns = value; }
         }
 
         public string Example
@@ -88,6 +118,12 @@ namespace SharpDox.Plugins.Word
         {
             get { return _exceptions; }
             set { _exceptions = value; }
+        }
+
+        public string Params
+        {
+            get { return _params; }
+            set { _params = value; }
         }
 
         public string TypeParams

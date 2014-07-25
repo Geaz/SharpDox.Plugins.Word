@@ -1,158 +1,122 @@
-﻿using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using MarkdownSharp;
 using SharpDox.Plugins.Word.OpenXml.Elements;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Field = DocumentFormat.OpenXml.Drawing.Field;
+using System.Text;
 
 namespace SharpDox.Plugins.Word.OpenXml
 {
     internal class WordTemplater
     {
         private readonly string _templateFile;
+        private readonly WordprocessingDocument _document;
+        private readonly BookmarkReplacer _bookmarkReplacer;
 
         public WordTemplater(string templateFile)
         {
             _templateFile = templateFile;
+            _document = WordprocessingDocument.Open(_templateFile, true);
+            _bookmarkReplacer = new BookmarkReplacer(_document);
         }
 
-        public void ReplaceBookmarks(IEnumerable<FieldData> fieldData)
+        public void ReplaceBookmarks(IEnumerable<BookmarkData> bookmarkData)
         {
-            foreach (var data in fieldData)
-            {
-                ReplaceBookmark(data);
-            }
+            _bookmarkReplacer.ReplaceBookmarks(bookmarkData);
         }
 
-        public void ReplaceBookmark(FieldData fieldData)
+        public void ReplaceBookmark(BookmarkData bookmarkData)
         {
-            using (var document = WordprocessingDocument.Open(_templateFile, true))
-            {
-                var bookmarks = GetAllBookmarks(document);
-                if (bookmarks.ContainsKey(fieldData.FieldName))
-                {
-                    foreach (var bookmark in bookmarks[fieldData.FieldName])
-                    {
-                        DeleteBookmarkContent(bookmark);
-
-                        if (fieldData.Element is RichText)
-                        {
-                            fieldData.Element.InsertAfter(bookmark.Parent,
-                                document.MainDocumentPart);
-                            // Richtext already includes style information (converted from html), no need to add it
-
-                            // Bookmarks are included in Paragraphs
-                            // But paragraphs included in paragraphs are not allowed
-                            // Thats why we delete the whole paragraph after inserting our new ones
-                            bookmark.Parent.Remove();
-                        }
-                        else
-                        {
-                            fieldData.Element.InsertAfter(bookmark, document.MainDocumentPart);
-                            if (!string.IsNullOrEmpty(fieldData.StyleName))
-                            {
-                                var styleId = GetStyleIdbyName(document.MainDocumentPart, fieldData.StyleName);
-                                if (!string.IsNullOrEmpty(styleId))
-                                {
-                                    ((Paragraph)bookmark.Parent).ParagraphProperties =
-                                        new ParagraphProperties(new ParagraphStyleId() {Val = styleId});
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    Trace.TraceWarning("Bookmark {0} not found", fieldData.FieldName);
-                }
-            }
+            _bookmarkReplacer.ReplaceBookmark(bookmarkData);
         }
 
-        public void AddRowToTable(int tableIndex, List<BaseElement> fields)
+        public void AppendPageBreak()
         {
-            using (var document = WordprocessingDocument.Open(_templateFile, true))
-            {
-                var tables = document.MainDocumentPart.Document.Descendants<Table>().ToList();
-                if (tables.Count >= tableIndex + 1)
-                {
-                    var tableCells = new List<TableCell>();
-                    foreach (var field in fields)
-                    {
-                        var tableCell = new TableCell();
-                        var paragraph = new Paragraph();
-                        field.AppendTo(paragraph, document.MainDocumentPart);
-
-                        tableCell.Append(paragraph);
-                        tableCells.Add(tableCell);
-                    }
-
-                    tables[tableIndex].Append(new TableRow(tableCells));
-                }
-            }
+            var mainPart = _document.MainDocumentPart;
+            var para = new Paragraph(new Run((new Break() { Type = BreakValues.Page })));
+            mainPart.Document.Body.InsertAfter(para, mainPart.Document.Body.LastChild);
         }
 
-        private Dictionary<string, List<BookmarkStart>> GetAllBookmarks(WordprocessingDocument document)
+        public void AppendMarkdown(string markdown, string paragraphStyle = null)
         {
-            var bookmarkMap = new Dictionary<string, List<BookmarkStart>>();
-            
-            foreach (BookmarkStart bookmarkStart in document.MainDocumentPart.RootElement.Descendants<BookmarkStart>())
+            var html = new Markdown().Transform(markdown);
+            if (!string.IsNullOrEmpty(paragraphStyle))
             {
-                if (!bookmarkMap.ContainsKey(bookmarkStart.Name))
-                {
-                    bookmarkMap.Add(bookmarkStart.Name, new List<BookmarkStart>());
-                }
-                bookmarkMap[bookmarkStart.Name].Add(bookmarkStart);
+                html = html.Replace("<p>", string.Format("<p class=\"{0}\">", paragraphStyle));
             }
-            foreach (var header in document.MainDocumentPart.HeaderParts)
+            AppendElement(new RichText(html));
+        }
+
+        public void AppendImage(string path, string style)
+        {
+            AppendElement(new RichText(string.Format("<p class=\"{0}\"><img src=\"{1}\"/></p>", style, path)));
+        }
+
+        public void AppendParagraph(string text, string style)
+        {
+            AppendElement(new RichText(string.Format("<p class=\"{0}\">{1}</p>", style, text)));
+        }
+
+        public void AppendRichText(string text)
+        {
+            AppendElement(new RichText(text));
+        }
+
+        public void AppendHeader(string text, int navigationlevel)
+        {
+            AppendElement(new HeaderText(text, navigationlevel));
+        }
+
+        public void AppendCodeBlock(string code)
+        {
+            AppendElement(new RichText(string.Format("<pre><code>{0}</code></pre>", code)));
+        }
+
+        public void AppendTable(List<string> headers, List<List<string>> rows, string style = "Table")
+        {
+            var table = new StringBuilder();
+            table.AppendFormat("<table style=\"width:100%\" class=\"{0}\">", style);
+
+            if (headers != null)
             {
-                foreach (BookmarkStart bookmarkStart in header.Header.Descendants<BookmarkStart>())
-                {
-                    if (!bookmarkMap.ContainsKey(bookmarkStart.Name))
-                    {
-                        bookmarkMap.Add(bookmarkStart.Name, new List<BookmarkStart>());
-                    }
-                    bookmarkMap[bookmarkStart.Name].Add(bookmarkStart);
-                }
+                table.Append("<tr>");
+                headers.ForEach(h => table.AppendFormat("<th>{0}</th>", h));
+                table.Append("</tr>");
             }
-            foreach (var footer in document.MainDocumentPart.FooterParts)
+
+            if (rows != null)
             {
-                foreach (BookmarkStart bookmarkStart in footer.Footer.Descendants<BookmarkStart>())
+                foreach (var row in rows)
                 {
-                    if (!bookmarkMap.ContainsKey(bookmarkStart.Name))
-                    {
-                        bookmarkMap.Add(bookmarkStart.Name, new List<BookmarkStart>());
-                    }
-                    bookmarkMap[bookmarkStart.Name].Add(bookmarkStart);
+                    table.Append("<tr>");
+                    row.ForEach(r => table.AppendFormat("<td>{0}</td>", r));
+                    table.Append("</tr>");
                 }
             }
 
-            return bookmarkMap;
+            table.Append("</table>");
+
+            AppendElement(new RichText(table.ToString()));
         }
 
-        private void DeleteBookmarkContent(BookmarkStart bookmarkStart)
+        public void AppendList(List<string> elements)
         {
-            var itemsToDelete = new List<OpenXmlElement>();
-            var element = bookmarkStart.NextSibling();
-            while(element != null && !(element is BookmarkEnd && ((BookmarkEnd)element).Id.Value == bookmarkStart.Id.Value))
-            {
-                itemsToDelete.Add(element);
-                element = element.NextSibling();
-            }
+            var list = new StringBuilder();
+            list.Append("<ul>");
+            elements.ForEach(e => list.AppendFormat("<li>{0}</li>", e));
+            list.Append("</ul>");
 
-            foreach(var item in itemsToDelete)
-            {
-                item.Remove();
-            }
+            AppendElement(new RichText(list.ToString()));
         }
 
-
-
-        private string GetStyleIdbyName(MainDocumentPart mainDocumentPart, string styleName)
+        public void Close()
         {
-            var style = (Style)mainDocumentPart.StyleDefinitionsPart.Styles.FirstOrDefault(s => s is Style && ((Style)s).StyleName.Val.Value.ToLower() == styleName.ToLower());
-            return style != null ? style.StyleId.Value : string.Empty;
+            _document.Close();
+        }
+
+        private void AppendElement(BaseElement element)
+        {
+            element.AppendTo(_document.MainDocumentPart.Document.Body, _document.MainDocumentPart);
         }
     }
 }

@@ -4,7 +4,7 @@ namespace SharpDox.Plugins.Word
 {
     internal static class Icons
     {
-        private static string _iconFolder = Path.Combine(Path.GetDirectoryName(typeof(Exporter).Assembly.Location), Templates.Folder, "icons");
+        private static string _iconFolder = Path.Combine(Path.GetDirectoryName(typeof(WordExporter).Assembly.Location), "templates", "icons");
 
         public static string GetIconPath(string type, string accessibility)
         {

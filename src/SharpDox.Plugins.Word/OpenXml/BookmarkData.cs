@@ -2,15 +2,15 @@
 
 namespace SharpDox.Plugins.Word.OpenXml
 {
-    internal class FieldData
+    internal class BookmarkData
     {
-        public FieldData(string fieldName, BaseElement element)
+        public BookmarkData(string bookmarkName, BaseElement element)
         {
-            FieldName = fieldName;
+            BookmarkName = bookmarkName;
             Element = element;
         }
 
-        public string FieldName { get; set; }
+        public string BookmarkName { get; set; }
         public BaseElement Element { get; set; }
         public string StyleName { get; set; }
     }
